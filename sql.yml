@@ -5,16 +5,26 @@
   become_method: sudo
   gather_facts: true
   tasks:
-  - name: Download sources
-    get_url:
-        url: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
-        dest: /opt/mysql
+    - name: copy repos
+      copy: src=/etc/yum.repos.d/rhel.repo dest=/etc/yum.repos.d/rhel.repo
+      
+    - name: install wget
+      yum: name=wget state=present
+      
+    - name: install python
+      yum: name=MySQL-python state=present
+      
+    - name: download
+      get_url: url=http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm dest=/usr/mysql/mysql-community-release-el7-5.noarch.rpm
+      
+    - name: install mysql
+      yum: name=/usr/mysql/mysql-community-release-el7.5.noarch.rpm state=present
 
-  - name: Install package
-    yum:
-      name: /opt/mysql/mysql-community-release-el7-5.noarch.rpm
-      state: present
-
-
- -  name: Install MySQL
-    yum: name=mysql-server state=installed
+    - name: Install package
+      yum: name=* state=latest
+      
+    - name: Install MySQL
+      yum: name=mysql-server state=present
+      
+    - name: restart 
+      service: name=mysqld state=restarted
